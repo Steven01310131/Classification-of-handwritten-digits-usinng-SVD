@@ -2,7 +2,6 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from scipy.linalg import norm
 #loading of the training data 
 
 TrainDigits=pd.DataFrame(np.load('X:\Documents\Python Scripts\ScientificComp\HandwrittenDigits\TrainDigits.npy'))
@@ -18,7 +17,7 @@ Atest_matrices={}
 for i in range(10):                                                           
     Atest_matrices.update({"Atest"+str(i):TestDigits.loc[:,TestLabels.loc[0,:]==i]})
 A0 =Atrain_matrices['A0'].to_numpy()[:,0:500]
-A1 =Atrain_matrices['A1'].to_numpy()[:,0:500]
+A1 =Atrain_matrices['A1'].to_numpy()[:,0:2000]
 A2 =Atrain_matrices['A2'].to_numpy()[:,0:500]
 A3 =Atrain_matrices['A3'].to_numpy()[:,0:500]
 A4 =Atrain_matrices['A4'].to_numpy()[:,0:500]
@@ -27,7 +26,7 @@ A6 =Atrain_matrices['A6'].to_numpy()[:,0:500]
 A7 =Atrain_matrices['A7'].to_numpy()[:,0:500]
 A8 =Atrain_matrices['A8'].to_numpy()[:,0:500]
 A9 =Atrain_matrices['A9'].to_numpy()[:,0:500]
-A0test =Atest_matrices['Atest0'].to_numpy()[:,0:100]                                     
+A0test =Atest_matrices['Atest0'].to_numpy()[:,0:100]                                   
 A1test =Atest_matrices['Atest1'].to_numpy()[:,0:100]                                        
 A2test =Atest_matrices['Atest2'].to_numpy()[:,0:100]                                        
 A3test =Atest_matrices['Atest3'].to_numpy()[:,0:100]                                        
@@ -48,41 +47,25 @@ A9test =Atest_matrices['Atest9'].to_numpy()[:,0:100]
 (u7,s7,v8)=np.linalg.svd(A7)
 (u8,s8,v8)=np.linalg.svd(A8)
 (u9,s9,v9)=np.linalg.svd(A9)
-print(np.shape(u0))
-# print(len(A0test[0,:]))
 
-# L=[u0,u1,u2,u3,u4,u5,u6,u7,u8,u9]
-# def classifyUnknownDigit(newDigit):
-#     L=[u0,u1,u2,u3,u4,u5,u6,u7,u8,u9]
-#     values = []
-#     for U in L:
-#         values.append(np.linalg.norm((np.identity(len(U))-np.matrix(U)*np.matrix(U.T)).dot(newDigit),ord=2)/np.linalg.norm(newDigit,ord=2))
-#     return values.index(min(values))
-# zero_pred = []
+
+
+
+L=[u0,u1,u2,u3,u4,u5,u6,u7,u8,u9]
+
+#prediction for 0
 I = np.eye(TrainDigits.shape[0])
 print(np.shape(I))
+zero_pred =[]
 for i in range(len(A0test[0,:])):
-    residuals = []
-    for j in range(10):
-        res=norm( np.dot(I-np.dot(u0,u0.T), A0test[:,:10]  ))
+    residuals=[]
+    for j in L :
+        res=np.linalg.norm((I-np.dot(j[:,:10],j[:,:10].T)).dot(A0test[:,i]),ord=2)
         residuals.append(res)
-print(residuals)
-#For classifying a specific number
-# ResidualU=np.linalg.norm((np.identity(len(u0))-np.matrix(u0)*np.matrix(u0.T)).dot(),ord=2)/np.linalg.norm(A0test,ord=2)
-# zeroprediction=[]
-# for i in range(len(A0test)):
-#     zeroprediction.append()
-# classes = [u0,u1,u2,u3,u4]
-# values = []
-# for U in classes:
-#     values.append(np.linalg.norm((np.identity(len(U))-np.matrix(U)*np.matrix(U.T)).dot(newDigit),ord=2)/np.linalg.norm(newDigit,ord=2))
-# k=values.index(min(values))
-# zero_pred = []
-# for i in range(len(TestDigits)):
-#     zero_pred.append(classifyUnknownDigit(zero_test.iloc[i]))
-# for i in L:
-#     ResidualU.append(np.linalg.norm((np.identity(len(i))-np.matrix(i)*np.matrix(i.T)).dot(),ord=2)/np.linalg.norm(A0test,ord=2))
-# ResidualU.index(min(ResidualU))
+    index_min = np.argmin(residuals)
+    zero_pred .append(index_min)
+print(zero_pred .count(0)/len(zero_pred ))
+
 
 
 #Part of code to display as images the first 15 left singular vectors [u1,.....u15] in this case the value zero 
@@ -101,6 +84,3 @@ print(residuals)
 # print(np.shape(A))
 # plt.imshow(A, cmap ='gray')
 # plt.show()
-
-
-
